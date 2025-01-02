@@ -25,9 +25,7 @@ HA dashboard:
 - **Dallas Temperature Sensor**: Measures the temperature to control the fan speed.
 
 <img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/cbb32cb0735898e6e77d7a7884a12dd11342f0ee/images/ds18b20_connections.png" alt="AC dimmer module with blower and temperature sensor" width="50%">
-- **AC Dimmer**: Controls the fan speed based on temperature readings.
-<img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/ef937f7f17040282e582c7b4afc6da3745c01cac/images/dimmer.jpg" alt="prototype" width="50%">
-<img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/076d6a47e34fb7eebe07463b3108b92ae65f9e10/images/protoboard.jpg" alt="prototype" width="50%">
+- **AC Dimmer**: Controls the fan speed based on temperature readings.<img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/ef937f7f17040282e582c7b4afc6da3745c01cac/images/dimmer.jpg" alt="prototype" width="50%"><img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/076d6a47e34fb7eebe07463b3108b92ae65f9e10/images/protoboard.jpg" alt="prototype" width="50%">
 ## Configuration
 
 The main configuration file is `esp32-test.yaml`. Below is a summary of the configuration:
