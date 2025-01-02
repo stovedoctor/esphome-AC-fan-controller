@@ -40,3 +40,6 @@ Create a `secrets.yaml` file in the same directory with your WiFi credentials:
 ```yaml
 wifi_ssid: "YOUR_WIFI_SSID"
 wifi_password: "YOUR_WIFI_PASSWORD"
+
+**Web portal**
+<img src="images/fan ui to off.png" alt="AC dimmer module with blower and temperature sensor" width="50%">
