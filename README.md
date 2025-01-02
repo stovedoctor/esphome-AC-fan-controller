@@ -19,13 +19,13 @@ HA dashboard:
 
 <img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/7ab314c0d0507d17723182830243cc7774a72c06/images/Ha%20pelet%20fan%20dashboard.png" alt="HA Dashboard" width="50%">
 ## Components
-<img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/main/images/AC%20dimmer%20module%20with%20blower%20and%20temperature%20sensor.png" alt="AC dimmer module with blower and temperature sensor" width="50%">
+<img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/d08dee3497813c8e713638efe107744abf9ffa9a/images/Prototypeacdimmer.png" alt="AC dimmer module prototype" width="50%">
 
 - **ESP32**: The microcontroller used for this project.
 - **Dallas Temperature Sensor**: Measures the temperature to control the fan speed.
 
 <img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/cbb32cb0735898e6e77d7a7884a12dd11342f0ee/images/ds18b20_connections.png" alt="AC dimmer module with blower and temperature sensor" width="50%">
-- **AC Dimmer**: Controls the fan speed based on temperature readings.<img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/ef937f7f17040282e582c7b4afc6da3745c01cac/images/dimmer.jpg" alt="prototype" width="50%"><img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/076d6a47e34fb7eebe07463b3108b92ae65f9e10/images/protoboard.jpg" alt="prototype" width="50%">
+- **AC Dimmer**: Controls the fan speed based on temperature readings.
 ## Configuration
 
 The main configuration file is `esp32-test.yaml`. Below is a summary of the configuration:
