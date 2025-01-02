@@ -33,3 +33,10 @@ The main configuration file is `esp32-test.yaml`. Below is a summary of the conf
    ```sh
    git clone https://github.com/stovedoctor/esphome-components.git
    cd esphome-components
+   Configure Secrets:
+
+2: **Create a `secrets.yaml` File**
+Create a `secrets.yaml` file in the same directory with your WiFi credentials:
+```yaml
+wifi_ssid: "YOUR_WIFI_SSID"
+wifi_password: "YOUR_WIFI_PASSWORD"
