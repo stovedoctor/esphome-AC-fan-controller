@@ -10,7 +10,10 @@ This repository contains ESPHome configurations and components for controlling a
 - **Fan Speed Control**: Adjusts the fan speed using an AC dimmer based on the temperature.
 - **Automated Reboot**: Reboots the ESP32 device a few times a day if the fan has been off for at least 10 minutes.
 - **Web Server**: Provides a web interface for direct access and control.
-
+    Web portal
+<img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/main/images/fan_ui_to_off.png" alt="AC dimmer module with blower and temperature sensor" width="50%">
+    HA dashboard
+<img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/7ab314c0d0507d17723182830243cc7774a72c06/images/Ha%20pelet%20fan%20dashboard.png" alt="HA Dashboard" width="50%">
 ## Components
 <img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/main/images/AC%20dimmer%20module%20with%20blower%20and%20temperature%20sensor.png" alt="AC dimmer module with blower and temperature sensor" width="50%">
 
@@ -26,10 +29,7 @@ The main configuration file is `esp32-test.yaml`. Below is a summary of the conf
 - **AC Dimmer**: Controls the fan speed.
 - **Dallas Temperature Sensor**: Monitors the temperature.
 - **Automations**: Includes an automation to reboot the device if the fan has been off for 10 minutes.
-**Web portal**
-<img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/main/images/fan_ui_to_off.png" alt="AC dimmer module with blower and temperature sensor" width="50%">
-<img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/3bac38e9e186087107014d8b96d79e254e8eedff/images/fan_ui_to_off.png" alt="Web portal" width="50%">
-<img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/main/images/AC%20dimmer%20module%20with%20blower%20and%20temperature%20sensor.png" alt="AC dimmer module with blower and temperature sensor" width="50%">
+
 ## Setup
 
 1. **Clone the Repository**:
