@@ -15,10 +15,10 @@ Web portal:
 
 <img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/main/images/fan_ui_to_off.png" alt="AC dimmer module with blower and temperature sensor" width="50%">
 
-HA dashboard:
+HA dashboard and History:
 
 <img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/7ab314c0d0507d17723182830243cc7774a72c06/images/Ha%20pelet%20fan%20dashboard.png" alt="HA Dashboard" width="50%">
-
+<img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/6cf52e9fb5becb033ed536f8697a4a8b93ec1e61/images/ha%20fan%20histiory%20to%20off.png" alt="HA Dashboard" width="50%">
 ## Components
 
 - **ESP32**: The microcontroller used for this project.
