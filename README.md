@@ -23,7 +23,10 @@ HA dashboard:
 
 - **ESP32**: The microcontroller used for this project.
 - **Dallas Temperature Sensor**: Measures the temperature to control the fan speed.
+
+<img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/cbb32cb0735898e6e77d7a7884a12dd11342f0ee/images/ds18b20_connections.png" alt="AC dimmer module with blower and temperature sensor" width="50%">
 - **AC Dimmer**: Controls the fan speed based on temperature readings.
+<img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/076d6a47e34fb7eebe07463b3108b92ae65f9e10/images/protoboard.jpg" alt="prototype" width="50%">
 ## Configuration
 
 The main configuration file is `esp32-test.yaml`. Below is a summary of the configuration:
@@ -32,8 +35,6 @@ The main configuration file is `esp32-test.yaml`. Below is a summary of the conf
 - **API and OTA**: Allows integration with Home Assistant and over-the-air updates.
 - **AC Dimmer**: Controls the fan speed.
 - **Dallas Temperature Sensor**: Monitors the temperature.
-<img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/cbb32cb0735898e6e77d7a7884a12dd11342f0ee/images/ds18b20_connections.png" alt="AC dimmer module with blower and temperature sensor" width="50%">
-  
 - **Automations**: Includes an automation to reboot the device if the fan has been off for 10 minutes.
 
 ## Setup
