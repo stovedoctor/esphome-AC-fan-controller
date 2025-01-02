@@ -11,8 +11,10 @@ This repository contains ESPHome configurations and components for controlling a
 - **Automated Reboot**: Reboots the ESP32 device a few times a day if the fan has been off for at least 10 minutes.
 - **Web Server**: Provides a web interface for direct access and control.
 
-Web portal
+Web portal:
+
 <img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/main/images/fan_ui_to_off.png" alt="AC dimmer module with blower and temperature sensor" width="50%">
+
     HA dashboard
 <img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/7ab314c0d0507d17723182830243cc7774a72c06/images/Ha%20pelet%20fan%20dashboard.png" alt="HA Dashboard" width="50%">
 ## Components
