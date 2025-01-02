@@ -30,7 +30,7 @@ HA dashboard and History:
 
 ## Configuration
 
-The main configuration file is `esp32-test.yaml`. Below is a summary of the configuration:
+The main configuration file is [`esp32-test.yaml`](https://github.com/stovedoctor/esphome-AC-fan-controller/blob/main/esp32-test.yaml). Below is a summary of the configuration:
 
 - **WiFi Configuration**: Connects the ESP32 to your WiFi network.
 - **API and OTA**: Allows integration with Home Assistant and over-the-air updates.
