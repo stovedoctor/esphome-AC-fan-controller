@@ -26,6 +26,7 @@ HA dashboard:
 - **AC Dimmer**: Controls the fan speed based on temperature readings.
 <img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/d08dee3497813c8e713638efe107744abf9ffa9a/images/Prototypeacdimmer.png" alt="AC dimmer module prototype" width="50%">
 <img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/cbb32cb0735898e6e77d7a7884a12dd11342f0ee/images/ds18b20_connections.png" alt="AC dimmer module with blower and temperature sensor" width="50%">
+
 ## Configuration
 
 The main configuration file is `esp32-test.yaml`. Below is a summary of the configuration:
