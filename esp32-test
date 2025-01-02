@@ -1,5 +1,6 @@
 esphome:
   name: esp32-test
+  friendly_name: Pellet Controller Fan test
 
 esp32:
   board: esp32dev # Hiletgo esp32-DevKitc-32   esp-32d esp-32 cp2012 usbc board
@@ -17,6 +18,10 @@ wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
   power_save_mode: none
+  manual_ip:
+    static_ip: 192.168.2.21
+    gateway: 192.168.2.1
+    subnet: 255.255.255.0
 
 web_server:
   version: 3
@@ -125,8 +130,7 @@ interval:
     then:
       - lambda: |-
           float temp = id(dallastemp3).state;  
-          if (temp < 31.5) // Off state for when stove is cooling down shut off at 31.5 
-          {
+          if (temp < 31.5) { // Off state for when stove is cooling down shut off at 31.5 
             id(pellet_fan_dimmer).set_level(0.0);  
             id(fan_status).publish_state("Off");
             id(fan_speed).publish_state(0);
@@ -164,6 +168,16 @@ interval:
             id(fan_speed_level).publish_state("High");
           }
 
+  - interval: 8h  # Run this every 8 hours
+    then:
+      - if:
+          condition:
+            binary_sensor.is_on: fan_off_10_min
+          then:
+            - logger.log: "Fan has been off for 10 minutes. Rebooting device."
+            - delay: 5s  # Short delay before rebooting
+            - switch.turn_on: restart_switch
+
 # Create a binary sensor to track if the fan has been off for at least 10 minutes
 binary_sensor:
   - platform: template
@@ -173,18 +187,6 @@ binary_sensor:
       return id(fan_status).state == "Off";
     filters:
       - delayed_on: 600s  # 10 minutes
-
-# Automation to reboot the device a few times a day if the fan has been off for at least 10 minutes
-interval:
-  - interval: 8h  # Run this every 8 hours
-    then:
-      if:
-        condition:
-          binary_sensor.is_on: fan_off_10_min
-        then:
-          - logger.log: "Fan has been off for 10 minutes. Rebooting device."
-          - delay: 5s  # Short delay before rebooting
-          - switch.turn_on: restart_switch
 
 # Switch to trigger a reboot
 switch:
