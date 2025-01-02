@@ -26,7 +26,10 @@ The main configuration file is `esp32-test.yaml`. Below is a summary of the conf
 - **AC Dimmer**: Controls the fan speed.
 - **Dallas Temperature Sensor**: Monitors the temperature.
 - **Automations**: Includes an automation to reboot the device if the fan has been off for 10 minutes.
-
+**Web portal**
+<img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/main/images/fan_ui_to_off.png" alt="AC dimmer module with blower and temperature sensor" width="50%">
+<img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/3bac38e9e186087107014d8b96d79e254e8eedff/images/fan_ui_to_off.png" alt="Web portal" width="50%">
+<img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/main/images/AC%20dimmer%20module%20with%20blower%20and%20temperature%20sensor.png" alt="AC dimmer module with blower and temperature sensor" width="50%">
 ## Setup
 
 1. **Clone the Repository**:
@@ -41,9 +44,5 @@ Create a `secrets.yaml` file in the same directory with your WiFi credentials:
 wifi_ssid: "YOUR_WIFI_SSID"
 wifi_password: "YOUR_WIFI_PASSWORD"
 
-**Web portal**
-<img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/main/images/fan_ui_to_off.png" alt="AC dimmer module with blower and temperature sensor" width="50%">
-<img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/3bac38e9e186087107014d8b96d79e254e8eedff/images/fan_ui_to_off.png" alt="Web portal" width="50%">
-<img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/main/images/AC%20dimmer%20module%20with%20blower%20and%20temperature%20sensor.png" alt="AC dimmer module with blower and temperature sensor" width="50%">
    
 
