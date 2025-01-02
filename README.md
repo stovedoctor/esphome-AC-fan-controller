@@ -43,3 +43,4 @@ wifi_password: "YOUR_WIFI_PASSWORD"
 
 **Web portal**
 <img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/main/images/fan_ui_to_off.png" alt="AC dimmer module with blower and temperature sensor" width="50%">
+<img src="https://github.com/stovedoctor/esphome-AC-fan-controller/blob/main/images/fan_ui_to_off.png" alt="Web portal" width="50%">
