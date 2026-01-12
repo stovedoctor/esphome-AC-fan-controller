@@ -1,9 +1,9 @@
 esphome:
-  name: esp32-test
-  friendly_name: Pellet Controller Fan test
+  name: pellet-controller-fan
+  friendly_name: Pellet Controller Fan
 
 esp32:
-  board: esp32dev # Hiletgo esp32-DevKitc-32   esp-32d esp-32 cp2012 usbc board
+  board: esp32dev # Hiletgo esp32-DevKitc-32 esp-32d esp-32 cp2012 usbc board
   framework:
     type: arduino
 
@@ -29,6 +29,9 @@ web_server:
 
 captive_portal:
 
+# -------------------------------------------------------------------------
+# HARDWARE OUTPUTS & SENSORS
+# -------------------------------------------------------------------------
 output:
   - platform: ac_dimmer
     id: pellet_fan_dimmer
@@ -36,7 +39,7 @@ output:
     zero_cross_pin:
       number: GPIO19
     method: LEADING
-    min_power: 42%  # Minimum power level set to 42%
+    min_power: 25%  # Lowered min power to allow wider range of control
 
 one_wire:
   - platform: gpio
@@ -46,12 +49,12 @@ sensor:
   - platform: dallas_temp # DS18b20 3 pin wire digital thermometer
     address: 0xc00000004421a328
     id: dallastemp3
-    name: "stove fan temperature"
+    name: "stove fan temperature Raw"
     icon: "mdi:thermometer"
     device_class: "temperature"
     unit_of_measurement: "°C"
     accuracy_decimals: 2
-    update_interval: 60s  # Updated interval to 60 seconds
+    update_interval: 45s  # Optimized to 45s to balance response time vs power noise
 
   - platform: template
     name: "Fan Speed"
@@ -68,104 +71,93 @@ text_sensor:
     name: "Fan Status"
     id: fan_status
 
-select:
-  - platform: template
-    name: "Fan Speed Level"
-    id: fan_speed_select
-    options:
-      - "Off"
-      - "Low"
-      - "Medium-Low"
-      - "Medium"
-      - "Medium-High"
-      - "High"
-    optimistic: true
-    initial_option: "Off"
-    set_action:
-      - lambda: |-
-          if (x == "Off") {
-            id(pellet_fan_dimmer).set_level(0.0);
-            id(fan_status).publish_state("Off");
-            id(fan_speed).publish_state(0);
-            id(fan_speed_level).publish_state("Off");
-
-          } else if (x == "Low") {
-            id(pellet_fan_dimmer).set_level(0.35);  // Updated speed level 1 to 0.35
-            id(fan_status).publish_state("On");
-            id(fan_speed).publish_state(35);  // Adjusted percentage to match the level
-            id(fan_speed_level).publish_state("Low");
-
-          } else if (x == "Medium-Low") {
-            id(pellet_fan_dimmer).set_level(0.4);
-            id(fan_status).publish_state("On");
-            id(fan_speed).publish_state(40);
-            id(fan_speed_level).publish_state("Medium-Low");
-
-          } else if (x == "Medium") {
-            id(pellet_fan_dimmer).set_level(0.5);  // Updated speed level 3 to 0.5
-            id(fan_status).publish_state("On");
-            id(fan_speed).publish_state(50);  // Adjusted percentage to match the level
-            id(fan_speed_level).publish_state("Medium");
-
-          } else if (x == "Medium-High") {
-            id(pellet_fan_dimmer).set_level(0.7);  // Updated speed level 4 to 0.7
-            id(fan_status).publish_state("On");
-            id(fan_speed).publish_state(70);  // Adjusted percentage to match the level
-            id(fan_speed_level).publish_state("Medium-High");
-            
-          } else if (x == "High") {
-            id(pellet_fan_dimmer).set_level(1.0);
-            id(fan_status).publish_state("On");
-            id(fan_speed).publish_state(100);
-            id(fan_speed_level).publish_state("High");
-          }
-
+# -------------------------------------------------------------------------
+# AUTOMATION LOGIC (Updates every 31s)
+# -------------------------------------------------------------------------
 # Temperature ranges and Fan on or off controlled with Lambda below 
-# Adjust fan speed with set_level(0.35) = 35% to fine-tune fan speed percentage at each 1 to 5 step. Level 1 would be 35%
-
-# Match the fan speed set action for set level and published % state in the above lambda "Low", "Medium-Low" etc. to the settings below
+# Hysteresis added: "Dead zones" between ranges prevent the fan from bouncing 
+# back and forth when temperature is on the edge.
 
 interval:
   - interval: 31s
     then:
       - lambda: |-
-          float temp = id(dallastemp3).state;  
-          if (temp < 31.5) { // Off state for when stove is cooling down shut off at 31.5 
-            id(pellet_fan_dimmer).set_level(0.0);  
-            id(fan_status).publish_state("Off");
-            id(fan_speed).publish_state(0);
-            id(fan_speed_level).publish_state("Off");
+          // Only run automation if Auto Mode is ON
+          if (id(auto_mode).state) {
+            float temp = id(dallastemp3).state;
 
-            // When STOVE is starting up and running, fan will turn on and run on low (35%) at above 33 then increase speeds with temperature ranges
-          } else if (temp >= 33 && temp <= 36)  {
-            id(pellet_fan_dimmer).set_level(0.35);  // Updated speed level 1 to 0.35
-            id(fan_status).publish_state("On");
-            id(fan_speed).publish_state(35);  // Adjusted percentage to match the level
-            id(fan_speed_level).publish_state("Low");
+            // OFF Logic (Shut off below 31.5)
+            if (temp < 31.5) {
+              id(pellet_fan_dimmer).set_level(0.0);
+              id(fan_status).publish_state("Off");
+              id(fan_speed).publish_state(0);
+              id(fan_speed_level).publish_state("Off");
+              
+              // FORCE HA UPDATE (Off) - Syncs the UI slider
+              id(pellet_fan).state = false;
+              id(pellet_fan).publish_state();
 
-          } else if (temp > 36 && temp <= 45) {
-            id(pellet_fan_dimmer).set_level(0.4);
-            id(fan_status).publish_state("On");
-            id(fan_speed).publish_state(40);
-            id(fan_speed_level).publish_state("Medium-Low");
+            // LOW (32.5 to 35.5) - Tuned: 40%
+            // Note: Gap between 35.5 and 36.5 is a "Dead Zone" (No Change)
+            } else if (temp >= 32.5 && temp <= 35.5) {
+              id(pellet_fan_dimmer).set_level(0.40);   // Updated speed level 1 to 0.40
+              id(fan_status).publish_state("On");
+              id(fan_speed).publish_state(40);
+              id(fan_speed_level).publish_state("Low");
+              
+              // FORCE HA UPDATE (Speed 1)
+              id(pellet_fan).state = true;
+              id(pellet_fan).speed = 1;
+              id(pellet_fan).publish_state();
 
-          } else if (temp > 45 && temp <= 50) {
-            id(pellet_fan_dimmer).set_level(0.5);  // Updated speed level 3 to 0.5
-            id(fan_status).publish_state("On");
-            id(fan_speed).publish_state(50);  // Adjusted percentage to match the level
-            id(fan_speed_level).publish_state("Medium");
+            // MEDIUM-LOW (36.5 to 39.5) - Tuned: 45%
+            } else if (temp >= 36.5 && temp <= 39.5) {
+              id(pellet_fan_dimmer).set_level(0.45);   // Updated speed level 2 to 0.45
+              id(fan_status).publish_state("On");
+              id(fan_speed).publish_state(45);
+              id(fan_speed_level).publish_state("Medium-Low");
 
-          } else if (temp > 50 && temp <= 60) {
-            id(pellet_fan_dimmer).set_level(0.7);  // Updated speed level 4 to 0.7
-            id(fan_status).publish_state("On");
-            id(fan_speed).publish_state(70);  // Adjusted percentage to match the level
-            id(fan_speed_level).publish_state("Medium-High");
-            
-          } else if (temp > 60) {
-            id(pellet_fan_dimmer).set_level(1.0);
-            id(fan_status).publish_state("On");
-            id(fan_speed).publish_state(100);
-            id(fan_speed_level).publish_state("High");
+              // FORCE HA UPDATE (Speed 2)
+              id(pellet_fan).state = true;
+              id(pellet_fan).speed = 2;
+              id(pellet_fan).publish_state();
+
+            // MEDIUM (40.5 to 42.5) - Tuned: 53%
+            } else if (temp >= 40.5 && temp <= 42.5) {
+              id(pellet_fan_dimmer).set_level(0.53);   // Updated speed level 3 to 0.53
+              id(fan_status).publish_state("On");
+              id(fan_speed).publish_state(53);
+              id(fan_speed_level).publish_state("Medium");
+
+              // FORCE HA UPDATE (Speed 3)
+              id(pellet_fan).state = true;
+              id(pellet_fan).speed = 3;
+              id(pellet_fan).publish_state();
+
+            // MEDIUM-HIGH (43.5 to 45) - Tuned: 58%
+            } else if (temp >= 43.5 && temp <= 45) {
+              id(pellet_fan_dimmer).set_level(0.58);   // Updated speed level 4 to 0.58
+              id(fan_status).publish_state("On");
+              id(fan_speed).publish_state(58);
+              id(fan_speed_level).publish_state("Medium-High");
+
+              // FORCE HA UPDATE (Speed 4)
+              id(pellet_fan).state = true;
+              id(pellet_fan).speed = 4;
+              id(pellet_fan).publish_state();
+
+            // HIGH (> 45.5) - 100%
+            } else if (temp > 45.5) {
+              id(pellet_fan_dimmer).set_level(1.0);
+              id(fan_status).publish_state("On");
+              id(fan_speed).publish_state(100);
+              id(fan_speed_level).publish_state("High");
+
+              // FORCE HA UPDATE (Speed 5)
+              id(pellet_fan).state = true;
+              id(pellet_fan).speed = 5;
+              id(pellet_fan).publish_state();
+            }
           }
 
   - interval: 8h  # Run this every 8 hours
@@ -178,6 +170,9 @@ interval:
             - delay: 5s  # Short delay before rebooting
             - switch.turn_on: restart_switch
 
+# -------------------------------------------------------------------------
+# SENSORS & SWITCHES
+# -------------------------------------------------------------------------
 # Create a binary sensor to track if the fan has been off for at least 10 minutes
 binary_sensor:
   - platform: template
@@ -188,8 +183,108 @@ binary_sensor:
     filters:
       - delayed_on: 600s  # 10 minutes
 
-# Switch to trigger a reboot
 switch:
   - platform: restart
     name: "Restart Switch"
     id: restart_switch
+
+  # Main switch to toggle between Automatic Temperature Control and Manual Mode
+  - platform: template
+    name: "Fan Auto Mode"
+    id: auto_mode
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
+    on_turn_off:
+      - script.execute: maintenance_timer  # Starts the 30-min countdown to re-enable auto
+    on_turn_on:
+      - script.stop: maintenance_timer
+
+# -------------------------------------------------------------------------
+# TESTING TOOLS (Commented out for future use)
+# -------------------------------------------------------------------------
+# This slider allows you to test exact percentages (e.g., 41%, 42%) to find 
+# the perfect motor speed. To use: Uncomment this block, install, turn OFF 
+# "Fan Auto Mode", and use the slider in the dashboard.
+#
+# number:
+#   - platform: template
+#     name: "Test Fan Speed %"
+#     id: test_fan_speed
+#     min_value: 20
+#     max_value: 100
+#     step: 1
+#     optimistic: true
+#     set_action:
+#       then:
+#         - lambda: |-
+#             if (id(auto_mode).state) {
+#               ESP_LOGW("custom", "Test Slider ignored: Auto Mode is ON.");
+#               return;
+#             }
+#             float level = x / 100.0;
+#             id(pellet_fan_dimmer).set_level(level);
+#             id(fan_speed).publish_state(x);
+#             id(fan_status).publish_state("Testing");
+
+# -------------------------------------------------------------------------
+# MAIN FAN COMPONENT (Manual Control)
+# -------------------------------------------------------------------------
+# This component creates the Fan entity in Home Assistant with a 5-speed slider.
+# It replaces the old "Select" dropdown.
+fan:
+  - platform: template
+    name: "Pellet Fan"
+    id: pellet_fan
+    speed_count: 5
+    on_turn_on:
+      - lambda: |-
+          id(pellet_fan_dimmer).set_level(1.0);
+          id(fan_status).publish_state("On");
+          id(fan_speed).publish_state(100);
+          id(fan_speed_level).publish_state("High");
+    on_turn_off:
+      - lambda: |-
+          id(pellet_fan_dimmer).set_level(0.0);
+          id(fan_status).publish_state("Off");
+          id(fan_speed).publish_state(0);
+          id(fan_speed_level).publish_state("Off");
+    on_speed_set:
+      - lambda: |-
+          if (x == 0) {  // Off
+            id(pellet_fan_dimmer).set_level(0.0);
+            id(fan_status).publish_state("Off");
+            id(fan_speed).publish_state(0);
+            id(fan_speed_level).publish_state("Off");
+          } else if (x == 1) {  // Speed 1 (Low)
+            id(pellet_fan_dimmer).set_level(0.40);   // Tuned: 40%
+            id(fan_status).publish_state("On");
+            id(fan_speed).publish_state(40);
+            id(fan_speed_level).publish_state("Low");
+          } else if (x == 2) {  // Speed 2 (Med-Low)
+            id(pellet_fan_dimmer).set_level(0.45);   // Tuned: 45%
+            id(fan_status).publish_state("On");
+            id(fan_speed).publish_state(45);
+            id(fan_speed_level).publish_state("Medium-Low");
+          } else if (x == 3) {  // Speed 3 (Med)
+            id(pellet_fan_dimmer).set_level(0.53);   // Tuned: 53%
+            id(fan_status).publish_state("On");
+            id(fan_speed).publish_state(53);
+            id(fan_speed_level).publish_state("Medium");
+          } else if (x == 4) {  // Speed 4 (Med-High)
+            id(pellet_fan_dimmer).set_level(0.58);   // Tuned: 58%
+            id(fan_status).publish_state("On");
+            id(fan_speed).publish_state(58);
+            id(fan_speed_level).publish_state("Medium-High");
+          } else if (x == 5) {  // Speed 5 (High)
+            id(pellet_fan_dimmer).set_level(1.0);    // 100%
+            id(fan_status).publish_state("On");
+            id(fan_speed).publish_state(100);
+            id(fan_speed_level).publish_state("High");
+          }
+
+script:
+  - id: maintenance_timer
+    then:
+      - delay: 30min
+      - switch.turn_on: auto_mode
+      - logger.log: "Maintenance timer finished. Returning to Auto Mode."
