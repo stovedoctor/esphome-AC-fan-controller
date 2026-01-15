@@ -229,8 +229,6 @@ switch:
 # -------------------------------------------------------------------------
 # MAIN FAN COMPONENT (Manual Control)
 # -------------------------------------------------------------------------
-# This component creates the Fan entity in Home Assistant with a 5-speed slider.
-# It replaces the old "Select" dropdown.
 fan:
   - platform: template
     name: "Pellet Fan"
@@ -238,16 +236,25 @@ fan:
     speed_count: 5
     on_turn_on:
       - lambda: |-
-          id(pellet_fan_dimmer).set_level(1.0);
+          // 1. If Auto Mode is ON, do nothing (let the temperature sensor decide)
+          if (id(auto_mode).state) {
+            return; 
+          }
+
+          // 2. Manual Mode / Fail Safe: Start at Medium-Low (45%)
+          // This is safer and quieter than blasting to High immediately.
+          id(pellet_fan_dimmer).set_level(0.45);
           id(fan_status).publish_state("On");
-          id(fan_speed).publish_state(100);
-          id(fan_speed_level).publish_state("High");
+          id(fan_speed).publish_state(45);
+          id(fan_speed_level).publish_state("Medium-Low");
+
     on_turn_off:
       - lambda: |-
           id(pellet_fan_dimmer).set_level(0.0);
           id(fan_status).publish_state("Off");
           id(fan_speed).publish_state(0);
           id(fan_speed_level).publish_state("Off");
+    
     on_speed_set:
       - lambda: |-
           if (x == 0) {  // Off
